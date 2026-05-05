@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Øyvind sin app</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;padding:2rem 1rem;}
+  .container{max-width:720px;margin:0 auto;}
+  .login-box{background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:2rem;max-width:360px;margin:4rem auto;text-align:center;}
+  .login-box h1{font-size:28px;font-weight:500;color:#fff;margin-bottom:8px;}
+  .login-box p{font-size:14px;color:#888;margin-bottom:1.5rem;}
+  .login-box input{width:100%;border:1px solid #333;border-radius:8px;padding:10px 14px;font-size:15px;font-family:inherit;color:#fff;background:#2a2a2a;outline:none;margin-bottom:12px;}
+  .login-box button{width:100%;background:#fff;color:#0a0a0a;border:none;border-radius:8px;padding:12px;font-size:15px;cursor:pointer;font-family:inherit;font-weight:500;}
+  .login-box button:hover{background:#e0e0e0;}
+  .login-error{color:#ff6666;font-size:13px;margin-top:8px;}
+  h1.app-title{font-size:22px;font-weight:500;margin-bottom:4px;color:#fff;}
+  .subtitle{font-size:13px;color:#888;margin-bottom:1.5rem;}
+  .tab-bar{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .tab{padding:8px 16px;border:1px solid #333;border-radius:8px;background:#1a1a1a;font-size:14px;cursor:pointer;color:#888;}
+  .tab.active{background:#fff;color:#0a0a0a;border-color:#fff;font-weight:500;}
+  .section{display:none;}
+  .section.active{display:block;}
+  .card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px;}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px;flex-shrink:0;}
+  .av-white{background:#fff;color:#0a0a0a;}
+  .av-blue{background:#1e3a5f;color:#60a5fa;}
+  .av-green{background:#1a3a2a;color:#4ade80;}
+  .av-purple{background:#2d1b69;color:#a78bfa;}
+  .av-rose{background:#3b1a2a;color:#f472b6;}
+  .av-orange{background:#3b2a0a;color:#fb923c;}
+  .av-teal{background:#0f3a3a;color:#2dd4bf;}
+  .av-yellow{background:#3b3a0a;color:#facc15;}
+  .av-red{background:#3b0a0a;color:#f87171;}
+  .section-label{font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500;}
+  .badge{font-size:11px;padding:3px 9px;border-radius:8px;display:inline-block;}
+  .badge-note{background:#2a2a2a;color:#aaa;}
+  .badge-done{background:#1a3a2a;color:#4ade80;}
+  textarea{width:100%;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:#fff;background:#2a2a2a;resize:vertical;min-height:80px;outline:none;}
+  textarea::placeholder{color:#555;}
+  input[type=text]{width:100%;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:#fff;background:#2a2a2a;outline:none;}
+  input[type=text]::placeholder{color:#555;}
+  input[type=file]{display:none;}
+  select{border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:#fff;background:#2a2a2a;outline:none;width:100%;}
+  .btn{padding:8px 14px;border:1px solid #333;border-radius:8px;background:#1a1a1a;font-size:13px;cursor:pointer;color:#fff;}
+  .btn:hover{background:#2a2a2a;}
+  .btn-primary{background:#fff;color:#0a0a0a;border-color:#fff;font-weight:500;}
+  .btn-primary:hover{background:#e0e0e0;}
+  .btn-sm{padding:3px 9px;font-size:12px;border:1px solid #333;border-radius:6px;background:#1a1a1a;cursor:pointer;color:#888;}
+  .btn-edit{padding:3px 7px;font-size:12px;border:1px solid #333;border-radius:6px;background:#1a1a1a;cursor:pointer;color:#aaa;}
+  .btn-save{padding:3px 7px;font-size:12px;border:1px solid #4ade80;border-radius:6px;background:#1a1a1a;cursor:pointer;color:#4ade80;}
+  .person-tab-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .ptab{padding:6px 14px;border:1px solid #333;border-radius:8px;font-size:13px;cursor:pointer;color:#888;background:#1a1a1a;}
+  .ptab.active{background:#fff;color:#0a0a0a;font-weight:500;border-color:#fff;}
+  .item-text{font-size:13px;color:#fff;flex:1;line-height:1.5;}
+  .item-edit-input{flex:1;border:1px solid #555;border-radius:6px;padding:4px 8px;font-size:13px;font-family:inherit;color:#fff;background:#2a2a2a;outline:none;}
+  .note-item{padding:8px 0;border-bottom:1px solid #222;font-size:13px;color:#fff;line-height:1.5;display:flex;gap:6px;align-items:flex-start;}
+  .note-item:last-child{border-bottom:none;}
+  .note-dot{width:6px;height:6px;border-radius:50%;background:#555;flex-shrink:0;margin-top:6px;}
+  .photo-item{padding:8px 0;border-bottom:1px solid #222;display:flex;gap:8px;align-items:flex-start;}
+  .photo-item:last-child{border-bottom:none;}
+  .photo-item img{width:50%;max-width:150px;height:auto;object-fit:cover;border-radius:8px;border:1px solid #333;cursor:pointer;}
+  .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+  .metric{background:#1a1a1a;border-radius:8px;padding:0.75rem 1rem;border:1px solid #333;cursor:pointer;transition:background 0.15s;}
+  .metric:hover{background:#2a2a2a;}
+  .metric-label{font-size:12px;color:#666;margin-bottom:3px;}
+  .metric-val{font-size:22px;font-weight:500;color:#fff;}
+  .person-card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.15s;}
+  .person-card:hover{background:#2a2a2a;}
+  .subsection{margin-top:16px;padding-top:14px;border-top:1px solid #222;}
+  .add-row{display:flex;gap:8px;margin-top:8px;}
+  .add-row input{flex:1;}
+  .empty{font-size:13px;color:#555;padding:6px 0;}
+  .sync-bar{display:flex;align-items:center;gap:8px;font-size:12px;color:#666;margin-bottom:1rem;}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;border:1px solid #22c55e;}
+  .sync-dot.syncing{background:#facc15;border-color:#eab308;}
+  .sync-dot.error{background:#f87171;border-color:#ef4444;}
+  .uploading{font-size:12px;color:#888;padding:6px 0;font-style:italic;}
+  .photo-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .todo-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #222;}
+  .todo-item:last-child{border-bottom:none;}
+  .todo-item input[type=checkbox]{width:15px;height:15px;flex-shrink:0;accent-color:#fff;cursor:pointer;}
+  .todo-text{font-size:13px;color:#fff;flex:1;line-height:1.5;}
+  .todo-text.done{text-decoration:line-through;color:#555;}
+  @media(max-width:500px){.metric-row{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <h1>⚡ Øyvind</h1>
+    <p>Skriv inn passordet ditt</p>
+    <input type="password" id="password-input" placeholder="Passord..." onkeydown="if(event.key==='Enter')checkPassword()" />
+    <button onclick="checkPassword()">Logg inn</button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="container">
+    <h1 class="app-title">⚡ Øyvind sin app</h1>
+    <p class="subtitle">To do · Studio · SoMe · Kollegaer · Handleliste</p>
+    <div class="sync-bar">
+      <div class="sync-dot syncing" id="sync-dot"></div>
+      <span id="sync-status">Laster data...</span>
+      <button class="btn-sm" onclick="syncFromSheet()" style="margin-left:auto;">Oppdater</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab active" id="tab-oversikt" onclick="showTab('oversikt',this)">Oversikt</button>
+      <button class="tab" id="tab-todo" onclick="showTab('todo',this)">To do i dag</button>
+      <button class="tab" id="tab-kategorier" onclick="showTab('kategorier',this)">Kategorier</button>
+      <button class="tab" id="tab-kollegaer" onclick="showTab('kollegaer',this)">Kollegaer</button>
+      <button class="tab" id="tab-handle" onclick="showTab('handle',this)">Handleliste</button>
+      <button class="tab" id="tab-meg" onclick="showTab('meg',this)">Meg selv</button>
+    </div>
+    <div id="oversikt" class="section active"></div>
+    <div id="todo" class="section">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div class="avatar av-yellow">TD</div>
+          <span style="font-weight:500;font-size:16px;color:#fff;">To do i dag</span>
+        </div>
+        <p class="section-label">Oppgaver</p>
+        <div id="todo-list"></div>
+        <div class="add-row">
+          <input type="text" id="new-todo" placeholder="Legg til oppgave..." onkeydown="if(event.key==='Enter')addTodo()" />
+          <button class="btn" onclick="addTodo()">Legg til</button>
+        </div>
+      </div>
+    </div>
+    <div id="kategorier" class="section">
+      <div class="person-tab-bar" id="kat-tabs"></div>
+      <div id="kat-content"></div>
+    </div>
+    <div id="kollegaer" class="section">
+      <div class="person-tab-bar" id="kol-tabs"></div>
+      <div id="kol-content"></div>
+    </div>
+    <div id="handle" class="section">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div class="avatar av-green">HL</div>
+          <span style="font-weight:500;font-size:16px;color:#fff;">Handleliste</span>
+        </div>
+        <p class="section-label">Varer</p>
+        <div id="handle-list"></div>
+        <div class="add-row">
+          <input type="text" id="new-handle" placeholder="Legg til vare..." onkeydown="if(event.key==='Enter')addHandle()" />
+          <button class="btn" onclick="addHandle()">Legg til</button>
+        </div>
+      </div>
+    </div>
+    <div id="meg" class="section">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div class="avatar av-white">ØY</div>
+          <span style="font-weight:500;font-size:16px;color:#fff;">Mine notater</span>
+        </div>
+        <p class="section-label">Huskeliste</p>
+        <p style="font-size:12px;color:#666;margin-bottom:8px;">Tekst eller bilde</p>
+        <div id="self-notes-list"></div>
+        <div class="add-row">
+          <input type="text" id="new-self-note" placeholder="Skriv noe du vil huske..." onkeydown="if(event.key==='Enter')addSelfNote()" />
+          <button class="btn" onclick="addSelfNote()">Legg til</button>
+        </div>
+        <div class="photo-btns">
+          <input type="file" id="camera-input" accept="image/*" onchange="handlePhoto(this)" />
+          <input type="file" id="library-input" accept="image/*" onchange="handlePhoto(this)" />
+          <button class="btn" onclick="document.getElementById('camera-input').click()">📷 Ta bilde</button>
+          <button class="btn" onclick="document.getElementById('library-input').click()">🖼 Velg fra bibliotek</button>
+          <span id="upload-status"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PASSWORD='Studio123';
+const API='https://script.google.com/macros/s/AKfycbyrv8NFgj2p3eE7wgt1MVOKWkIXOuqOWhJU_a0OLIjblX4yUWelHJHO_fQOSTwtEcCH/exec';
+
+const KAT_ITEMS=[
+  {id:'kat_studio',name:'Studio',initials:'ST',avClass:'av-purple'},
+  {id:'kat_some',name:'SoMe',initials:'SM',avClass:'av-blue'}
+];
+const KOL_ITEMS=[
+  {id:'kol_lars',name:'Lars',initials:'LH',avClass:'av-white'},
+  {id:'kol_morten',name:'Morten',initials:'MO',avClass:'av-orange'},
+  {id:'kol_kristian',name:'Kristian',initials:'KR',avClass:'av-teal'},
+  {id:'kol_birgitte',name:'Birgitte',initials:'BI',avClass:'av-rose'}
+];
+const ALL_ITEMS=[...KAT_ITEMS,...KOL_ITEMS];
+
+let notes={};
+let todos=[];
+let handleItems=[];
+let selfNotes=[];
+let activeKat=KAT_ITEMS[0].id;
+let activeKol=KOL_ITEMS[0].id;
+let isSyncing=false;
+
+ALL_ITEMS.forEach(item=>{notes[item.id]=[];});
+
+function checkPassword(){
+  const val=document.getElementById('password-input').value;
+  if(val===PASSWORD){
+    localStorage.setItem('oyvind_auth','yes');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    syncFromSheet();
+  } else {
+    document.getElementById('login-error').textContent='Feil passord, prøv igjen.';
+  }
+}
+
+window.onload=function(){
+  if(localStorage.getItem('oyvind_auth')==='yes'){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    syncFromSheet();
+  }
+};
+
+function today(){return new Date().toLocaleDateString('no-NO',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function uid(){return 'oy_'+Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setSyncStatus(state,msg){
+  document.getElementById('sync-dot').className='sync-dot '+state;
+  document.getElementById('sync-status').textContent=msg;
+}
+function goToTab(tabId){showTab(tabId,document.getElementById('tab-'+tabId));}
+
+function makeNoteRow(note,saveType,onDelete){
+  return `<div class="note-item" id="row-${note.id}">
+    <div class="note-dot" style="margin-top:8px;flex-shrink:0;"></div>
+    <span class="item-text" id="txt-${note.id}" style="flex:1;">${escHtml(note.text)}<span style="font-size:11px;color:#555;margin-left:8px;">${note.date}</span></span>
+    <input class="item-edit-input" id="edit-${note.id}" style="display:none;" value="${escHtml(note.text)}" onkeydown="if(event.key==='Enter')saveEdit('${note.id}','${saveType}')" />
+    <button class="btn-edit" id="ebtn-${note.id}" onclick="startEdit('${note.id}')">✏️</button>
+    <button class="btn-save" id="sbtn-${note.id}" style="display:none;" onclick="saveEdit('${note.id}','${saveType}')">✓</button>
+    <button class="btn-sm" onclick="${onDelete}('${note.id}')">×</button>
+  </div>`;
+}
+
+function startEdit(id){
+  document.getElementById('txt-'+id).style.display='none';
+  document.getElementById('edit-'+id).style.display='';
+  document.getElementById('edit-'+id).focus();
+  document.getElementById('ebtn-'+id).style.display='none';
+  document.getElementById('sbtn-'+id).style.display='';
+}
+
+function saveEdit(id,type){
+  const val=document.getElementById('edit-'+id).value.trim();
+  if(!val)return;
+  if(type==='note'){
+    for(const key in notes){const n=notes[key].find(x=>x.id===id);if(n){n.text=val;break;}}
+    saveToSheet();renderAll();
+  } else if(type==='selfnote'){
+    const n=selfNotes.find(x=>x.id===id);if(n){n.text=val;saveToSheet();renderSelf();}
+  }
+}
+
+async function handlePhoto(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  const statusEl=document.getElementById('upload-status');
+  statusEl.className='uploading';
+  statusEl.textContent='Laster opp bilde...';
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const base64=e.target.result.split(',')[1];
+    const mimeType=file.type;
+    const filename='oy_bilde_'+Date.now()+'.jpg';
+    try{
+      const res=await fetch(API,{method:'POST',body:JSON.stringify({action:'uploadImage',data:base64,mimeType,filename})});
+      const data=await res.json();
+      if(data.url){
+        selfNotes.unshift({id:uid(),text:'',imageUrl:data.url,date:today()});
+        statusEl.textContent='Bilde lastet opp!';
+        setTimeout(()=>statusEl.textContent='',2000);
+        saveToSheet();renderSelf();renderOversikt();
+      }
+    }catch(err){statusEl.textContent='Feil ved opplasting';}
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+async function syncFromSheet(){
+  if(isSyncing)return;
+  isSyncing=true;
+  setSyncStatus('syncing','Henter data...');
+  try{
+    const res=await fetch(API+'?t='+Date.now());
+    const rows=await res.json();
+
+    ALL_ITEMS.forEach(item=>{notes[item.id]=[];});
+    todos=[];
+    handleItems=[];
+    selfNotes=[];
+
+    rows.filter(r=>r.type==='oynote').forEach(r=>{
+      const parts=r.text.split('||');
+      const id=parts[0];
+      const cat=r.pid;
+      const text=parts.slice(1).join('||');
+      if(notes[cat]!==undefined){notes[cat].push({id,text,date:r.date});}
+    });
+    rows.filter(r=>r.type==='oytodo').forEach(r=>{
+      const parts=r.text.split('||');
+      todos.push({id:parts[0],text:parts.slice(1).join('||'),done:r.done==='true'||r.done===true,date:r.date});
+    });
+    rows.filter(r=>r.type==='oyhandle').forEach(r=>{
+      const parts=r.text.split('||');
+      handleItems.push({id:parts[0],text:parts.slice(1).join('||'),done:r.done==='true'||r.done===true,date:r.date});
+    });
+    rows.filter(r=>r.type==='oyself').forEach(r=>{
+      const parts=r.text.split('||');
+      const id=parts[0];
+      const rest=parts.slice(1).join('||');
+      if(rest.startsWith('IMG:')){selfNotes.push({id,text:'',imageUrl:rest.slice(4),date:r.date});}
+      else{selfNotes.push({id,text:rest,imageUrl:'',date:r.date});}
+    });
+
+    setSyncStatus('','Synkronisert '+today());
+    renderAll();
+    isSyncing=false;
+  }catch(e){
+    setSyncStatus('error','Feil ved henting');
+    isSyncing=false;
+  }
+}
+
+async function saveToSheet(){
+  setSyncStatus('syncing','Lagrer...');
+  const rows=[];
+  ALL_ITEMS.forEach(item=>{
+    (notes[item.id]||[]).forEach(n=>{
+      rows.push({type:'oynote',pid:item.id,text:n.id+'||'+n.text,date:n.date,done:'false'});
+    });
+  });
+  todos.forEach(t=>{
+    rows.push({type:'oytodo',pid:'oy_todo',text:t.id+'||'+t.text,date:t.date,done:String(t.done)});
+  });
+  handleItems.forEach(h=>{
+    rows.push({type:'oyhandle',pid:'oy_handle',text:h.id+'||'+h.text,date:h.date,done:String(h.done)});
+  });
+  selfNotes.forEach(n=>{
+    rows.push({type:'oyself',pid:'oy_self',text:n.id+'||'+(n.imageUrl?'IMG:'+n.imageUrl:n.text),date:n.date,done:'false'});
+  });
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({action:'replace',rows})});
+    setSyncStatus('','Lagret '+today());
+  }catch(e){
+    setSyncStatus('error','Feil ved lagring');
+  }
+}
+
+function renderAll(){
+  renderOversikt();
+  renderTodo();
+  renderKatTabs();renderKatContent();
+  renderKolTabs();renderKolContent();
+  renderHandle();
+  renderSelf();
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='oversikt')renderOversikt();
+  if(id==='todo')renderTodo();
+  if(id==='kategorier'){renderKatTabs();renderKatContent();}
+  if(id==='kollegaer'){renderKolTabs();renderKolContent();}
+  if(id==='handle')renderHandle();
+  if(id==='meg')renderSelf();
+}
+
+function renderOversikt(){
+  const el=document.getElementById('oversikt');
+  const openTodos=todos.filter(t=>!t.done).length;
+  const openHandle=handleItems.filter(h=>!h.done).length;
+  const totalNotes=Object.values(notes).reduce((a,b)=>a+b.length,0);
+  el.innerHTML=`
+    <div class="metric-row">
+      <div class="metric" onclick="goToTab('todo')"><div class="metric-label">To do i dag</div><div class="metric-val">${openTodos}</div></div>
+      <div class="metric" onclick="goToTab('kategorier')"><div class="metric-label">Notater</div><div class="metric-val">${totalNotes}</div></div>
+      <div class="metric" onclick="goToTab('handle')"><div class="metric-label">Handleliste</div><div class="metric-val">${openHandle}</div></div>
+      <div class="metric" onclick="goToTab('meg')"><div class="metric-label">Meg selv</div><div class="metric-val">${selfNotes.length}</div></div>
+    </div>
+    <p class="section-label" style="margin-bottom:8px;">Kategorier</p>
+    ${[
+      {id:'todo',label:'To do i dag',sub:'Dagens oppgaver',avClass:'av-yellow',initials:'TD',count:openTodos},
+      {id:'kategorier',label:'Studio & SoMe',sub:'Studio · SoMe',avClass:'av-purple',initials:'ST',count:KAT_ITEMS.reduce((a,i)=>a+(notes[i.id]||[]).length,0)},
+      {id:'kollegaer',label:'Kollegaer',sub:'Lars · Morten · Kristian · Birgitte',avClass:'av-teal',initials:'KO',count:KOL_ITEMS.reduce((a,i)=>a+(notes[i.id]||[]).length,0)},
+      {id:'handle',label:'Handleliste',sub:'Varer å kjøpe',avClass:'av-green',initials:'HL',count:openHandle}
+    ].map(cat=>`<div class="person-card" onclick="goToTab('${cat.id}')">
+      <div class="avatar ${cat.avClass}">${cat.initials}</div>
+      <div style="flex:1;"><div style="font-weight:500;font-size:14px;color:#fff;">${cat.label}</div><div style="font-size:12px;color:#666;">${cat.sub}</div></div>
+      <div>${cat.count>0?`<span class="badge badge-note">${cat.count}</span>`:'<span class="badge badge-done">Tomt</span>'}</div>
+    </div>`).join('')}
+    <div class="person-card" onclick="goToTab('meg')">
+      <div class="avatar av-white">ØY</div>
+      <div style="flex:1;"><div style="font-weight:500;font-size:14px;color:#fff;">Meg selv</div><div style="font-size:12px;color:#666;">Mine huskenotater</div></div>
+      <div>${selfNotes.length>0?`<span class="badge badge-note">${selfNotes.length}</span>`:'<span class="badge badge-done">Tomt</span>'}</div>
+    </div>`;
+}
+
+function renderTodo(){
+  const el=document.getElementById('todo-list');
+  if(!el)return;
+  el.innerHTML=todos.length===0?'<p class="empty">Ingen oppgaver i dag.</p>':
+    todos.map(t=>`<div class="todo-item">
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo('${t.id}',this.checked)" />
+      <span class="todo-text ${t.done?'done':''}">${escHtml(t.text)}</span>
+      <button class="btn-sm" onclick="deleteTodo('${t.id}')">×</button>
+    </div>`).join('');
+}
+function addTodo(){
+  const inp=document.getElementById('new-todo');
+  const text=inp.value.trim();if(!text)return;
+  todos.unshift({id:uid(),text,done:false,date:today()});
+  inp.value='';saveToSheet();renderTodo();renderOversikt();
+}
+function toggleTodo(id,val){const t=todos.find(x=>x.id===id);if(t){t.done=val;saveToSheet();renderTodo();renderOversikt();}}
+function deleteTodo(id){todos=todos.filter(t=>t.id!==id);saveToSheet();renderTodo();renderOversikt();}
+
+function renderHandle(){
+  const el=document.getElementById('handle-list');
+  if(!el)return;
+  el.innerHTML=handleItems.length===0?'<p class="empty">Handlelisten er tom.</p>':
+    handleItems.map(h=>`<div class="todo-item">
+      <input type="checkbox" ${h.done?'checked':''} onchange="toggleHandle('${h.id}',this.checked)" />
+      <span class="todo-text ${h.done?'done':''}">${escHtml(h.text)}</span>
+      <button class="btn-sm" onclick="deleteHandle('${h.id}')">×</button>
+    </div>`).join('');
+}
+function addHandle(){
+  const inp=document.getElementById('new-handle');
+  const text=inp.value.trim();if(!text)return;
+  handleItems.unshift({id:uid(),text,done:false,date:today()});
+  inp.value='';saveToSheet();renderHandle();renderOversikt();
+}
+function toggleHandle(id,val){const h=handleItems.find(x=>x.id===id);if(h){h.done=val;saveToSheet();renderHandle();renderOversikt();}}
+function deleteHandle(id){handleItems=handleItems.filter(h=>h.id!==id);saveToSheet();renderHandle();renderOversikt();}
+
+function renderKatTabs(){
+  document.getElementById('kat-tabs').innerHTML=KAT_ITEMS.map(i=>
+    `<button class="ptab ${i.id===activeKat?'active':''}" onclick="switchKat('${i.id}')">${i.name}</button>`
+  ).join('');
+}
+function switchKat(id){activeKat=id;renderKatTabs();renderKatContent();}
+function renderKatContent(){
+  const item=KAT_ITEMS.find(x=>x.id===activeKat);
+  document.getElementById('kat-content').innerHTML=renderCategoryCard(item,notes[item.id]||[],'deleteKatNote','addKatNote');
+}
+
+function renderKolTabs(){
+  document.getElementById('kol-tabs').innerHTML=KOL_ITEMS.map(i=>
+    `<button class="ptab ${i.id===activeKol?'active':''}" onclick="switchKol('${i.id}')">${i.name}</button>`
+  ).join('');
+}
+function switchKol(id){activeKol=id;renderKolTabs();renderKolContent();}
+function renderKolContent(){
+  const item=KOL_ITEMS.find(x=>x.id===activeKol);
+  document.getElementById('kol-content').innerHTML=renderCategoryCard(item,notes[item.id]||[],'deleteKolNote','addKolNote');
+}
+
+function renderCategoryCard(item,itemNotes,deleteFn,addFn){
+  return `<div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div class="avatar ${item.avClass}">${item.initials}</div>
+      <span style="font-weight:500;font-size:16px;color:#fff;">${item.name}</span>
+    </div>
+    <p class="section-label">Huskeliste</p>
+    <div>
+      ${itemNotes.length===0?'<p class="empty">Ingen notater ennå.</p>':''}
+      ${itemNotes.map(n=>makeNoteRow(n,'note',deleteFn)).join('')}
+    </div>
+    <div class="add-row">
+      <input type="text" id="new-note-${item.id}" placeholder="Legg til notat..." onkeydown="if(event.key==='Enter')${addFn}()" />
+      <button class="btn" onclick="${addFn}()">Legg til</button>
+    </div>
+  </div>`;
+}
+
+function addNoteToCategory(catId,inputId){
+  const inp=document.getElementById(inputId);
+  const text=inp.value.trim();if(!text)return;
+  if(!notes[catId])notes[catId]=[];
+  notes[catId].unshift({id:uid(),text,date:today()});
+  inp.value='';saveToSheet();renderAll();
+}
+function deleteNoteFromCategory(catId,id){
+  notes[catId]=(notes[catId]||[]).filter(n=>n.id!==id);
+  saveToSheet();renderAll();
+}
+
+function addKatNote(){addNoteToCategory(activeKat,'new-note-'+activeKat);}
+function deleteKatNote(id){deleteNoteFromCategory(activeKat,id);}
+function addKolNote(){addNoteToCategory(activeKol,'new-note-'+activeKol);}
+function deleteKolNote(id){deleteNoteFromCategory(activeKol,id);}
+
+function renderSelf(){
+  const nl=document.getElementById('self-notes-list');
+  if(!nl)return;
+  nl.innerHTML=selfNotes.length===0?'<p class="empty">Ingen notater ennå.</p>':
+    selfNotes.map(n=>{
+      if(n.imageUrl){
+        return `<div class="photo-item"><div style="flex:1;">
+          <img src="${n.imageUrl}" alt="Bilde" onclick="window.open('${n.imageUrl}','_blank')" />
+          <div style="font-size:11px;color:#555;margin-top:4px;">${n.date}</div>
+          <button class="btn-sm" style="margin-top:4px;" onclick="deleteSelfNote('${n.id}')">Slett</button>
+        </div></div>`;
+      }
+      return makeNoteRow(n,'selfnote','deleteSelfNote');
+    }).join('');
+}
+function addSelfNote(){
+  const inp=document.getElementById('new-self-note');
+  const text=inp.value.trim();if(!text)return;
+  selfNotes.unshift({id:uid(),text,imageUrl:'',date:today()});
+  inp.value='';saveToSheet();renderSelf();renderOversikt();
+}
+function deleteSelfNote(id){selfNotes=selfNotes.filter(n=>n.id!==id);saveToSheet();renderSelf();renderOversikt();}
+
+syncFromSheet();
+</script>
+</body>
+</html>
